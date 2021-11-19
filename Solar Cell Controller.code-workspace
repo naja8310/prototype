@@ -1,0 +1,33 @@
+{
+	"folders": [
+		{
+			"name": "Outdoor Node",
+			"path": "Outdoor Node"
+		},
+		{
+			"name": "Indoor Node",
+			"path": "Indoor Node"
+		},
+		{
+			"path": "Webpage"
+		},
+		{
+			"name": "Test file",
+			"path": "Test file"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Webpage",
+		"files.associations": {
+			"array": "cpp",
+			"string": "cpp",
+			"string_view": "cpp",
+			"ranges": "cpp",
+			"deque": "cpp",
+			"unordered_map": "cpp",
+			"unordered_set": "cpp",
+			"vector": "cpp",
+			"initializer_list": "cpp"
+		}
+	}
+}
