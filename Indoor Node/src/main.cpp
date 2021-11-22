@@ -12,8 +12,8 @@ unsigned long sendDataPrevMillis = 0;
 #define user_email "admin@solar.com"
 #define user_pass "admin12345"
 // Network credential
-#define WIFI_SSID "settasak.iphone"
-#define WIFI_PASSWORD "password"
+#define WIFI_SSID "SIVA"
+#define WIFI_PASSWORD "8467137siva"
 // LoRa
 #include <LoRa.h>
 #include <SPI.h>
@@ -56,7 +56,6 @@ float voltage_pv;
 float current_pv;
 float voltage_batt;
 float current_batt;
-
 void setvalue(){
   voltage_pv =random(1,24);
   current_pv =random(1,5);
@@ -105,6 +104,7 @@ void logSDCard() {
 }
 void setup(){
   Serial.begin(115200);
+  buttonState = digitalRead(buttonPin);
   pinMode(buttonPin, INPUT);
 // Lora init
   Serial.println("LoRa Rx");
@@ -127,12 +127,16 @@ void setup(){
   }
   rtc.start();
 // Wifi Init
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  
   Serial.print("Connecting to Wi-Fi");
-  while (WiFi.status() != WL_CONNECTED){
+  if (buttonState == 1) {
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    while (WiFi.status() != WL_CONNECTED){
     Serial.print(".");
     delay(1000);
   }
+    }
+  
 // OlED init 
   if(!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)){ // Address 0x3D for 128x64
     Serial.println(F("SSD1306 allocation failed"));
@@ -180,7 +184,6 @@ void setup(){
   Firebase.reconnectWiFi(true);
 }
 void loop(){
-  
   buttonState = digitalRead(buttonPin);
   DateTime now = rtc.now();
   Date = now.timestamp(DateTime::TIMESTAMP_DATE);
