@@ -12,8 +12,11 @@ unsigned long sendDataPrevMillis = 0;
 #define user_email "admin@solar.com"
 #define user_pass "admin12345"
 // Network credential
-#define WIFI_SSID "SIVA"
-#define WIFI_PASSWORD "8467137siva"
+#include <WebServer.h>     
+#include <AutoConnect.h>
+WebServer Server;          
+AutoConnect Portal(Server);
+#define led 2
 // LoRa
 #include <LoRa.h>
 #include <SPI.h>
@@ -61,6 +64,11 @@ void setvalue(){
   current_pv =random(1,5);
   voltage_batt =random(1,12);
   current_batt =random(1,5);
+  delay(100);
+}
+void rootPage() {
+  char content[] = "Hello, world";
+  Server.send(200, "text/plain", content);
 }
 // Write to the SD card (DON'T MODIFY THIS FUNCTION)
 void writeFile(fs::FS &fs, const char * path, const char * message) {
@@ -105,7 +113,14 @@ void logSDCard() {
 void setup(){
   Serial.begin(115200);
   buttonState = digitalRead(buttonPin);
+  pinMode(led,OUTPUT);
   pinMode(buttonPin, INPUT);
+  if (buttonState == 1) {
+    Server.on("/", rootPage);
+  if (Portal.begin()) {
+    Serial.println("WiFi connected: " + WiFi.localIP().toString());
+    }
+  }
 // Lora init
   Serial.println("LoRa Rx");
   LoRa.setPins(ss, rst, dio0);
@@ -126,17 +141,9 @@ void setup(){
     //rtc.adjust(DateTime(2021, 10, 24, 4, 25, 0));
   }
   rtc.start();
-// Wifi Init
-  
-  Serial.print("Connecting to Wi-Fi");
-  if (buttonState == 1) {
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    while (WiFi.status() != WL_CONNECTED){
-    Serial.print(".");
-    delay(1000);
+  if (WiFi.status() == WL_CONNECTED){
+    digitalWrite(led,HIGH);
   }
-    }
-  
 // OlED init 
   if(!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)){ // Address 0x3D for 128x64
     Serial.println(F("SSD1306 allocation failed"));
@@ -158,8 +165,7 @@ void setup(){
     Serial.println("ERROR - SD card initialization failed!");
     return;    // init failed
   }
-  // If the logs.txt file doesn't exist
-  // Create a file on the SD card and write the data labels
+  // If the logs.txt file doesn't exist Create a file on the SD card and write the data labels
   File file = SD.open("/logs.csv");
   if(!file) {
     Serial.println("File doens't exist");
@@ -185,6 +191,7 @@ void setup(){
 }
 void loop(){
   buttonState = digitalRead(buttonPin);
+  Portal.handleClient();
   DateTime now = rtc.now();
   Date = now.timestamp(DateTime::TIMESTAMP_DATE);
   Time = now.timestamp(DateTime::TIMESTAMP_TIME);
@@ -243,10 +250,10 @@ void loop(){
     oled.print("Current PV: ");
     oled.println(current_pv);
     oled.setCursor(0,40);
-    oled.print("Voltage Battery: ");
+    oled.print("Voltage Battery:");
     oled.println(voltage_batt);
     oled.setCursor(0,50);
-    oled.print("Current Battery: ");
+    oled.print("Current Battery:");
     oled.println(current_batt);
     oled.display();
   }
@@ -269,10 +276,7 @@ void loop(){
     Serial.println("This message is not for me.");
     return;
   } 
-  if (millis() - sendDataPrevMillis > 60000 || sendDataPrevMillis == 0){ //log data every 1 min
-  logSDCard();
-  }
-  if (Firebase.ready()  && (millis() - sendDataPrevMillis > 60000 || sendDataPrevMillis == 0)){ //sent data to server every 1min
+  if ((millis() - sendDataPrevMillis > 60000 || sendDataPrevMillis == 0)){ //sent data to server every 1min
   sendDataPrevMillis = millis();
   Firebase.RTDB.setFloat(&fbdo, "outdoor/temp_env",temp_env);
   Firebase.RTDB.setFloat(&fbdo, "outdoor/humid_env",humid_env);
@@ -284,6 +288,7 @@ void loop(){
   Firebase.RTDB.setFloat(&fbdo, "indoor/current_batt",current_batt);
   Firebase.RTDB.setString(&fbdo,"timestamp/date",now.timestamp(DateTime::TIMESTAMP_DATE));
   Firebase.RTDB.setString(&fbdo,"timestamp/time",now.timestamp(DateTime::TIMESTAMP_TIME));
+  logSDCard();
   }
   setvalue();
 }

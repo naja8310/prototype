@@ -26,40 +26,40 @@ float temp_pv;
 void pv_temp(){
 PVtemperature.begin(); 
 PVtemperature.requestTemperatures(); 
+temp_pv = PVtemperature.getTempCByIndex(0);
 Serial.print("PV Temperature = ");
-Serial.print(PVtemperature.getTempCByIndex(0));
+Serial.print(temp_pv);
 Serial.println(" C");
 }
 void env_light(){
 LightSensor.begin();
-uint16_t lux = LightSensor.GetLightIntensity(); 
+light_env =LightSensor.GetLightIntensity(); 
 Serial.print("Light = ");
-Serial.print(lux);
+Serial.print(light_env);
 Serial.println(" Lux");  
 }
-void readAirHumidity(){
+
+void env_tempNhumid(){
  AM2320.begin();
- Serial.print("AirHumidity = ");
- Serial.print(AM2320.getHumidity(),2);
- Serial.println(" %");
-}
-void readAirTemperature(){
- AM2320.begin();
+ temp_env = AM2320.getTemperature(),2;
+ humid_env = AM2320.getHumidity(),2;
  Serial.print("AirTemperature = ");
- Serial.print(AM2320.getTemperature(),2);
+ Serial.print(temp_env);
  Serial.println(" C");
+ Serial.print("AirHumidity = ");
+ Serial.print(humid_env);
+ Serial.println(" %");
 }
 
 void setup(){
 Serial.begin(115200);
+AM2320.begin();
 pv_temp();
 env_light();
-readAirHumidity();
-readAirTemperature();
-delay(100);
+env_tempNhumid();
 Serial.println("LoRa Tx");
 LoRa.setPins(ss, rst, dio0);  
-  if (!LoRa.begin(915E6)) {
+if (!LoRa.begin(915E6)) {
     Serial.println("Starting LoRa failed!");
     while (1);
 }
