@@ -121,6 +121,9 @@ void setup(){
     Serial.println("WiFi connected: " + WiFi.localIP().toString());
     }
   }
+   if (WiFi.status() == WL_CONNECTED){
+    digitalWrite(led,HIGH);
+  }
 // Lora init
   Serial.println("LoRa Rx");
   LoRa.setPins(ss, rst, dio0);
@@ -141,9 +144,6 @@ void setup(){
     //rtc.adjust(DateTime(2021, 10, 24, 4, 25, 0));
   }
   rtc.start();
-  if (WiFi.status() == WL_CONNECTED){
-    digitalWrite(led,HIGH);
-  }
 // OlED init 
   if(!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)){ // Address 0x3D for 128x64
     Serial.println(F("SSD1306 allocation failed"));
