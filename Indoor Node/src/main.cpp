@@ -269,6 +269,9 @@ void loop(){
     Serial.println("This message is not for me.");
     return;
   } 
+  if (millis() - sendDataPrevMillis > 60000 || sendDataPrevMillis == 0){ //log data every 1 min
+  logSDCard();
+  }
   if (Firebase.ready()  && (millis() - sendDataPrevMillis > 60000 || sendDataPrevMillis == 0)){ //sent data to server every 1min
   sendDataPrevMillis = millis();
   Firebase.RTDB.setFloat(&fbdo, "outdoor/temp_env",temp_env);
@@ -281,7 +284,6 @@ void loop(){
   Firebase.RTDB.setFloat(&fbdo, "indoor/current_batt",current_batt);
   Firebase.RTDB.setString(&fbdo,"timestamp/date",now.timestamp(DateTime::TIMESTAMP_DATE));
   Firebase.RTDB.setString(&fbdo,"timestamp/time",now.timestamp(DateTime::TIMESTAMP_TIME));
-  logSDCard();
   }
   setvalue();
 }

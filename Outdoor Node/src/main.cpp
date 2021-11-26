@@ -4,14 +4,14 @@
 #include <BH1750FVI.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#define ONE_WIRE_BUS 17 
+#define ONE_WIRE_BUS 4 
 // dsb pin
 #define ss 32
 #define rst 25
 #define dio0 33
 // define LoRa
 
-AM232X AM2322;
+AM232X AM2320;
 BH1750FVI LightSensor(BH1750FVI::k_DevModeContLowRes);
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature PVtemperature(&oneWire);
@@ -23,24 +23,40 @@ float humid_env;
 int light_env;
 float temp_pv;
 
-void setdata(){
-temp_env =random(30,40);
-humid_env =random(1,100);
-light_env =random(0,65535);
-temp_pv =random(30,40);
-Serial.print("AirTemperature = ");
-Serial.println(temp_env);
-Serial.print("AirHumidity = ");
-Serial.println(humid_env);
+void pv_temp(){
+PVtemperature.begin(); 
+PVtemperature.requestTemperatures(); 
+Serial.print("PV Temperature = ");
+Serial.print(PVtemperature.getTempCByIndex(0));
+Serial.println(" C");
+}
+void env_light(){
+LightSensor.begin();
+uint16_t lux = LightSensor.GetLightIntensity(); 
 Serial.print("Light = ");
-Serial.println(light_env);
-Serial.print("PV Temperature = ");;
-Serial.println(temp_pv);
+Serial.print(lux);
+Serial.println(" Lux");  
+}
+void readAirHumidity(){
+ AM2320.begin();
+ Serial.print("AirHumidity = ");
+ Serial.print(AM2320.getHumidity(),2);
+ Serial.println(" %");
+}
+void readAirTemperature(){
+ AM2320.begin();
+ Serial.print("AirTemperature = ");
+ Serial.print(AM2320.getTemperature(),2);
+ Serial.println(" C");
 }
 
 void setup(){
 Serial.begin(115200);
-setdata();
+pv_temp();
+env_light();
+readAirHumidity();
+readAirTemperature();
+delay(100);
 Serial.println("LoRa Tx");
 LoRa.setPins(ss, rst, dio0);  
   if (!LoRa.begin(915E6)) {
