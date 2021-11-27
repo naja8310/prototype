@@ -268,24 +268,20 @@ void loop(){
   light_env = LoRa.read();
   temp_pv = LoRa.read();
   incoming = String(temp_env)+String(humid_env)+String(light_env)+String(temp_pv);
-/*  if (incomingLength != incoming.length()) {
-    Serial.println("error: message length does not match length");
-    return;
-  }*/
   if (recipient != localAddress) {
     Serial.println("This message is not for me.");
     return;
   } 
   if ((millis() - sendDataPrevMillis > 60000 || sendDataPrevMillis == 0)){ //sent data to server every 1min
   sendDataPrevMillis = millis();
-  Firebase.RTDB.setFloat(&fbdo, "outdoor/temp_env",temp_env);
-  Firebase.RTDB.setFloat(&fbdo, "outdoor/humid_env",humid_env);
+  Firebase.RTDB.setFloat(&fbdo,"outdoor/temp_env",temp_env);
+  Firebase.RTDB.setFloat(&fbdo,"outdoor/humid_env",humid_env);
   Firebase.RTDB.setInt(&fbdo,"outdoor/light_env",light_env);
-  Firebase.RTDB.setFloat(&fbdo, "outdoor/temp_pv",temp_pv);
-  Firebase.RTDB.setFloat(&fbdo, "indoor/voltage_pv",voltage_pv);
-  Firebase.RTDB.setFloat(&fbdo, "indoor/current_pv",current_pv);
-  Firebase.RTDB.setFloat(&fbdo, "indoor/voltage_batt",voltage_batt);
-  Firebase.RTDB.setFloat(&fbdo, "indoor/current_batt",current_batt);
+  Firebase.RTDB.setFloat(&fbdo,"outdoor/temp_pv",temp_pv);
+  Firebase.RTDB.setFloat(&fbdo,"indoor/voltage_pv",voltage_pv);
+  Firebase.RTDB.setFloat(&fbdo,"indoor/current_pv",current_pv);
+  Firebase.RTDB.setFloat(&fbdo,"indoor/voltage_batt",voltage_batt);
+  Firebase.RTDB.setFloat(&fbdo,"indoor/current_batt",current_batt);
   Firebase.RTDB.setString(&fbdo,"timestamp/date",now.timestamp(DateTime::TIMESTAMP_DATE));
   Firebase.RTDB.setString(&fbdo,"timestamp/time",now.timestamp(DateTime::TIMESTAMP_TIME));
   logSDCard();

@@ -1,22 +1,23 @@
+// Library
 #include <LoRa.h>
 #include <SPI.h>
 #include <AM232X.h>
 #include <BH1750FVI.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+// PV temp DSB Pin
 #define ONE_WIRE_BUS 4 
-// dsb pin
+// LoRa Pin
 #define ss 32
 #define rst 25
 #define dio0 33
-// define LoRa
+byte localAddress = 0xFA;
+byte destination = 0xFB;
 
 AM232X AM2320;
 BH1750FVI LightSensor(BH1750FVI::k_DevModeContLowRes);
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature PVtemperature(&oneWire);
-byte localAddress = 0xFA;
-byte destination = 0xFB;
 
 float temp_env;
 float humid_env;
@@ -38,7 +39,6 @@ Serial.print("Light = ");
 Serial.print(light_env);
 Serial.println(" Lux");  
 }
-
 void env_tempNhumid(){
  AM2320.begin();
  temp_env = AM2320.getTemperature(),2;
@@ -50,7 +50,6 @@ void env_tempNhumid(){
  Serial.print(humid_env);
  Serial.println(" %");
 }
-
 void setup(){
 Serial.begin(115200);
 AM2320.begin();
@@ -77,6 +76,5 @@ Serial.println("Sent");
 esp_sleep_enable_timer_wakeup(10e6); //10sec
 esp_deep_sleep_start();
 }
-
 void loop (){
 }
