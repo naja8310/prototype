@@ -28,6 +28,9 @@
 			"unordered_set": "cpp",
 			"vector": "cpp",
 			"initializer_list": "cpp"
-		}
+		},
+		"cSpell.words": [
+			"SWITCHCAPVCC"
+		]
 	}
 }

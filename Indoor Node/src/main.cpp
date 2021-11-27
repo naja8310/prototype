@@ -11,7 +11,7 @@ FirebaseConfig config;
 unsigned long sendDataPrevMillis = 0;
 #define user_email "admin@solar.com"
 #define user_pass "admin12345"
-// Network credential
+// autoconnect wifi manager
 #include <WebServer.h>     
 #include <AutoConnect.h>
 WebServer Server;          
