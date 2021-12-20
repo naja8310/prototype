@@ -11,19 +11,14 @@
 #define ss 32
 #define rst 25
 #define dio0 33
-byte localAddress = 0xFA;
-byte destination = 0xFB;
-
 AM232X AM2320;
 BH1750FVI LightSensor(BH1750FVI::k_DevModeContLowRes);
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature PVtemperature(&oneWire);
-
 float temp_env;
 float humid_env;
 int light_env;
 float temp_pv;
-
 void pv_temp(){
 PVtemperature.begin(); 
 PVtemperature.requestTemperatures(); 
@@ -62,18 +57,17 @@ if (!LoRa.begin(915E6)) {
     Serial.println("Starting LoRa failed!");
     while (1);
 }
+LoRa.setSyncWord(0xA5);
+Serial.println("LoRa Initializing OK!");
 String outgoing = String(temp_env)+String(humid_env)+String(light_env)+String(temp_pv);
 LoRa.beginPacket();
-LoRa.write(destination);
-LoRa.write(localAddress);
-LoRa.write(outgoing.length());
 LoRa.write(temp_env);
 LoRa.write(humid_env);
 LoRa.write(light_env);
 LoRa.write(temp_pv);
 LoRa.endPacket();
 Serial.println("Sent");
-esp_sleep_enable_timer_wakeup(10e6); //10sec
+esp_sleep_enable_timer_wakeup(300e6); //10sec
 esp_deep_sleep_start();
 }
 void loop (){

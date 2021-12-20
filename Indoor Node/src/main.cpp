@@ -20,6 +20,10 @@ AutoConnect Portal(Server);
 // LoRa
 #include <LoRa.h>
 #include <SPI.h>
+const int ss = 32;
+#define rst 25
+#define dio0 33
+String incoming;
 // RTC
 #include "RTClib.h"
 RTC_PCF8563 rtc;
@@ -41,15 +45,6 @@ int screenPages =0;
 #include "SD.h"
 #define SD_CS 5
 String dataMessage;
-//Define LoRa
-#define ss 32
-#define rst 25
-#define dio0 33
-byte localAddress = 0xFB;
-int recipient;
-String incoming;
-byte sender;
-byte incomingLength;
 //Define data struct
 float temp_env;
 float humid_env;
@@ -59,15 +54,8 @@ float voltage_pv;
 float current_pv;
 float voltage_batt;
 float current_batt;
-void setvalue(){
-  voltage_pv =random(1,24);
-  current_pv =random(1,5);
-  voltage_batt =random(1,12);
-  current_batt =random(1,5);
-  delay(100);
-}
 void rootPage() {
-  char content[] = "Hello, world";
+  char content[] = "Wifi Connected nothing to do here";
   Server.send(200, "text/plain", content);
 }
 // Write to the SD card (DON'T MODIFY THIS FUNCTION)
@@ -131,15 +119,16 @@ void setup(){
   Serial.println("Starting LoRa failed!");
   while (1);
   }
+  LoRa.setSyncWord(0xA5);
+  Serial.println("LoRa Initializing OK!");
 // RTC init 
   if (! rtc.begin()) {
     Serial.println("Couldn't find RTC");
-    Serial.flush();
     abort();
   }
   if (rtc.lostPower()) {
     Serial.println("RTC is NOT initialized, let's set the time!");
-    //rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); //set first time or reset time once compile
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); //set first time or reset time once compile
     // January 21, 2014 at 3am you would call:
     //rtc.adjust(DateTime(2021, 10, 24, 4, 25, 0));
   }
@@ -260,20 +249,14 @@ void loop(){
   // Lora Read Value
   int packetSize = LoRa.parsePacket ();
   if (packetSize==0) return;
-  recipient=LoRa.read();
-  sender = LoRa.read();
-  incomingLength = LoRa.read();
   temp_env = LoRa.read();
   humid_env = LoRa.read();
   light_env = LoRa.read();
   temp_pv = LoRa.read();
   incoming = String(temp_env)+String(humid_env)+String(light_env)+String(temp_pv);
-  if (recipient != localAddress) {
-    Serial.println("This message is not for me.");
-    return;
-  } 
-  if ((millis() - sendDataPrevMillis > 60000 || sendDataPrevMillis == 0)){ //sent data to server every 1min
+  if ((millis() - sendDataPrevMillis > 60000 || sendDataPrevMillis == 0)){ //sent data to server if new packet come in
   sendDataPrevMillis = millis();
+  logSDCard();
   Firebase.RTDB.setFloat(&fbdo,"outdoor/temp_env",temp_env);
   Firebase.RTDB.setFloat(&fbdo,"outdoor/humid_env",humid_env);
   Firebase.RTDB.setInt(&fbdo,"outdoor/light_env",light_env);
@@ -284,8 +267,6 @@ void loop(){
   Firebase.RTDB.setFloat(&fbdo,"indoor/current_batt",current_batt);
   Firebase.RTDB.setString(&fbdo,"timestamp/date",now.timestamp(DateTime::TIMESTAMP_DATE));
   Firebase.RTDB.setString(&fbdo,"timestamp/time",now.timestamp(DateTime::TIMESTAMP_TIME));
-  logSDCard();
   }
-  setvalue();
 }
 
