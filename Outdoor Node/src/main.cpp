@@ -15,10 +15,8 @@ AM232X AM2320;
 BH1750FVI LightSensor(BH1750FVI::k_DevModeContLowRes);
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature PVtemperature(&oneWire);
-float temp_env;
-float humid_env;
-int light_env;
-float temp_pv;
+byte temp_env,humid_env,temp_pv;
+uint16_t light_env;
 void pv_temp(){
 PVtemperature.begin(); 
 PVtemperature.requestTemperatures(); 
@@ -36,8 +34,8 @@ Serial.println(" Lux");
 }
 void env_tempNhumid(){
  AM2320.begin();
- temp_env = AM2320.getTemperature(),2;
- humid_env = AM2320.getHumidity(),2;
+ temp_env = AM2320.getTemperature();
+ humid_env = AM2320.getHumidity();
  Serial.print("AirTemperature = ");
  Serial.print(temp_env);
  Serial.println(" C");
@@ -51,20 +49,19 @@ AM2320.begin();
 pv_temp();
 env_light();
 env_tempNhumid();
-Serial.println("LoRa Tx");
 LoRa.setPins(ss, rst, dio0);  
 if (!LoRa.begin(915E6)) {
     Serial.println("Starting LoRa failed!");
     while (1);
 }
 LoRa.setSyncWord(0xA5);
-Serial.println("LoRa Initializing OK!");
 String outgoing = String(temp_env)+String(humid_env)+String(light_env)+String(temp_pv);
 LoRa.beginPacket();
 LoRa.write(temp_env);
 LoRa.write(humid_env);
 LoRa.write(light_env);
 LoRa.write(temp_pv);
+LoRa.write(outgoing.length());
 LoRa.endPacket();
 Serial.println("Sent");
 esp_sleep_enable_timer_wakeup(300e6); //10sec

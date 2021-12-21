@@ -8,6 +8,5 @@ void  currentavergae_battf();
 void  current_pvf();
 void  current_battf();
 void  voltage_pvf();
-void  getana() ;
 void  voltage_battf(); 
 #endif 

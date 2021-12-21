@@ -1,50 +1,28 @@
-// LoRa
-#include <LoRa.h>
-#include <SPI.h>
-//Define LoRa
-#define ss 32
-#define rst 25
-#define dio0 33
-byte localAddress = 0xFB;
-int recipient;
-String incoming;
-byte sender;
-byte incomingLength;
-//Define data struct
-float temp_env;
-float humid_env;
-int light_env;
-float temp_pv;
-
+#include "Wire.h"
+#include <Arduino.h>
+#define PCF8591 (0x48)
+uint8_t adcvalue0, adcvalue1, adcvalue2, adcvalue3;
+float voltage_pv;
+void  voltage_pvf(){
+Wire.begin();
+Wire.beginTransmission(PCF8591);
+Wire.write(0x04);
+Wire.endTransmission();
+Wire.requestFrom(PCF8591,5);
+adcvalue0=Wire.read();
+adcvalue0=Wire.read(); //CurentSolar
+adcvalue1=Wire.read(); //voltageSolar
+adcvalue2=Wire.read(); //voltagebatt
+adcvalue3=Wire.read(); //Currentbatt
+voltage_pv = (adcvalue2 / 255.0)*20.220; // 18=a1/1024 =31.524
+return;
+}
 void setup(){
   Serial.begin(115200);
-
-// Lora init
-  Serial.println("LoRa Rx");
-  LoRa.setPins(ss, rst, dio0);
-  if (!LoRa.begin(915E6)) {
-  Serial.println("Starting LoRa failed!");
-  while (1);
-  }
 }
-void loop(){
-  // Lora Read Value
-  int packetSize = LoRa.parsePacket ();
-  if (packetSize==0) return;
-  recipient=LoRa.read();
-  sender = LoRa.read();
-  incomingLength = LoRa.read();
-  temp_env = LoRa.read();
-  humid_env = LoRa.read();
-  light_env = LoRa.read();
-  temp_pv = LoRa.read();
-  incoming = String(temp_env)+String(humid_env)+String(light_env)+String(temp_pv);
-  if (recipient != localAddress) {
-    Serial.println("This message is not for me.");
-    return;
-  } 
-  Serial.println(temp_env);
-  Serial.println(humid_env);
-  Serial.println(light_env);
-  Serial.println(temp_pv);
+void loop ()
+{
+voltage_pvf();
+Serial.println(voltage_pv);
+delay(5000);
 }

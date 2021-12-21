@@ -28,7 +28,8 @@
 			"unordered_set": "cpp",
 			"vector": "cpp",
 			"initializer_list": "cpp",
-			"functional": "cpp"
+			"functional": "cpp",
+			"ctime": "cpp"
 		},
 		"cSpell.words": [
 			"SWITCHCAPVCC"

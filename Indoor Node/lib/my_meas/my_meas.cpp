@@ -2,55 +2,7 @@
 #include "Wire.h"
 #define PCF8591 (0x48)
 uint8_t adcvalue0, adcvalue1, adcvalue2, adcvalue3;
-float  getCSolar(){
- Wire.begin();
- Wire.beginTransmission(PCF8591);
- Wire.write(0x04);
- Wire.endTransmission();
- Wire.requestFrom(PCF8591,5);
- adcvalue0=Wire.read();
- adcvalue0=Wire.read(); //CurrentSolar
- adcvalue1=Wire.read(); //voltageSolar
- adcvalue2=Wire.read(); //voltagebatt
- adcvalue3=Wire.read(); //Currentbatt
-float  v = (adcvalue1 / 255.0)*4912.2093; // 7634.8 = 2535*1024/"ค่าเฉลี่ยที่อ่านได้ของA0""
-  float  c = (v - 2485) / 185;
-  return c;
- }
-float  getCASolar() {
-  int count = 1000;
-  float  sum = 0;
-  for (int i = 0; i < count; i++) {
-    sum += getCSolar();
-  }
-  float  val = sum / count;
-  return val;
-}
-float  getCABat() {
-  int count = 1000;
-  float  sum = 0;
-  for (int i = 0; i < count; i++) {
-    sum += getCBat();
-  }
-  float  val1 = sum / count;
-  return val1;
-}
-float  getCBat() {
-  Wire.begin();
-  Wire.beginTransmission(PCF8591);
- Wire.write(0x04);
- Wire.endTransmission();
- Wire.requestFrom(PCF8591,5);
- adcvalue0=Wire.read();
- adcvalue0=Wire.read(); //CuurentSolar
- adcvalue1=Wire.read(); //voltageSolra 
- adcvalue2=Wire.read(); //vlotagebatt
- adcvalue3=Wire.read(); //Currentbatt
-  float  o = (adcvalue0 / 255.0)* 7657.3451; // 7634.8 = 2535*1024/"ค่าเฉลี่ยที่อ่านได้ของA0""
-  float  p = (o - 2535) / 185;
-  return p;
-}
-float  getVolSolar(){
+void  current_pvf(){
   Wire.begin();
 Wire.beginTransmission(PCF8591);
  Wire.write(0x04);
@@ -61,10 +13,58 @@ Wire.beginTransmission(PCF8591);
  adcvalue1=Wire.read(); //voltageSolra
  adcvalue2=Wire.read(); //vlotagebatt
  adcvalue3=Wire.read(); //Currentbatt
-float  Solar = (adcvalue2 / 255.0)*21.2681; // 18=a1/1024 =31.524
-return Solar;
+void  v = (adcvalue1 / 255.0)*4983.2061; // = 2535*1024/"ค่าเฉลี่ยที่อ่านได้ของA0""
+  void  x = (v -2560) / 185;
+  return x;
+ }
+void  currentaverage_pvf() {
+  int count = 1000;
+  void  sum = 0;
+  for (int i = 0; i < count; i++) {
+    sum += current_pvf();
+  }
+  void  current_pv = sum / count;
+  return current_pv;
 }
-float  getana() {
+void  currentaverage_battf() {
+  int count = 1000;
+  void  sum = 0;
+  for (int i = 0; i < count; i++) {
+    sum += current_battf();
+  }
+  void  current_batt = sum / count;
+  return current_batt;
+}
+void  current_battf() {
+  Wire.begin();
+  Wire.beginTransmission(PCF8591);
+ Wire.write(0x04);
+ Wire.endTransmission();
+ Wire.requestFrom(PCF8591,5);
+ adcvalue0=Wire.read();
+ adcvalue0=Wire.read(); //CuurentSolar
+ adcvalue1=Wire.read(); //voltageSolra 
+ adcvalue2=Wire.read(); //vlotagebatt
+ adcvalue3=Wire.read(); //Currentbatt
+  void  o = (adcvalue0 / 255.0)*4983.2061; // 7634.8 = 2535*1024/"ค่าเฉลี่ยที่อ่านได้ของA0""
+  void  y = (o - 2560) / 185;
+  return y;
+}
+void  voltage_pvf(){
+  Wire.begin();
+Wire.beginTransmission(PCF8591);
+ Wire.write(0x04);
+ Wire.endTransmission();
+ Wire.requestFrom(PCF8591,5);
+ adcvalue0=Wire.read();
+ adcvalue0=Wire.read(); //CuurentSolar
+ adcvalue1=Wire.read(); //voltageSolra
+ adcvalue2=Wire.read(); //vlotagebatt
+ adcvalue3=Wire.read(); //Currentbatt
+void  voltage_pv = (adcvalue2 / 255.0)*20.220; // 18=a1/1024 =31.524
+return voltage_pv;
+}
+void  getana() {
   Wire.begin();
   Wire.beginTransmission(PCF8591);
  Wire.write(0x04);
@@ -76,14 +76,14 @@ float  getana() {
  adcvalue2=Wire.read(); //vlotagebatt
  adcvalue3=Wire.read(); //Currentbatt
   int count = 400;
-  float  sum = 0;
+  void  sum = 0;
   for (int i = 0; i < count; i++) {
     sum += adcvalue1 ;
   }
-  float  v = sum / count;
+  void  v = sum / count;
   return v;
 }
-float  getVolBat(){
+void  voltage_battf(){
   Wire.begin();
 Wire.beginTransmission(PCF8591);
  Wire.write(0x04);
@@ -94,6 +94,6 @@ Wire.beginTransmission(PCF8591);
  adcvalue1=Wire.read(); //voltageSolra
  adcvalue2=Wire.read(); //vlotagebatt
  adcvalue3=Wire.read(); //Currentbatt
-float  Y = (adcvalue3 / 255.0)*29.1768; // 18=a1/1024 =31.524
-return Y;
+void  voltage_batt = (adcvalue3 / 255.0)*27.332; // 18=a1/1024 =31.524
+return voltage_batt;
 }
